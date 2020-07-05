@@ -6,9 +6,5 @@
     {
         "ParameterKey": "AmiId",
         "ParameterValue": "ami-003634241a8fcdec0"
-    },
-    {
-        "ParameterKey": "KeyPairName",
-        "ParameterValue": "udacity-udagram-key"
     }
 ]
