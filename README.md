@@ -1,31 +1,34 @@
-# Problem
-Your company is creating an Instagram clone called Udagram. Developers pushed the latest version of their code in a zip file located in a public S3 Bucket.
+# Udacity Cloud DevOps Engineer Nanodegree
 
-You have been tasked with deploying the application, along with the necessary supporting software into its matching infrastructure.
+This is the submission for the [_Deploy a high-availability web app using CloudFormation_ project.](instructions.md)
 
-This needs to be done in an automated fashion so that the infrastructure can be discarded as soon as the testing team finishes their tests and gathers their results.
+# Architecture
 
-# Project Requirements
+The architecture diagram for this problem is as shown below
 
-## Server specs
-You'll need to create a **Launch Configuration** for your application servers in order to deploy four servers, two located in each of your private subnets. The launch configuration will be used by an auto-scaling group.
+![AWS Architecture](udagram-architecture.jpeg)
 
-You'll need two vCPUs and at least 4GB of RAM. The Operating System to be used is Ubuntu 18. So, choose an Instance size and Machine Image (AMI) that best fits this spec. Be sure to allocate at least 10GB of disk space so that you don't run into issues. 
+# Running Instructions
 
-## Security Groups and Roles
+* To set up the server, you have to first create the network infrastrcture using the command:
 
+```
+./create.sh udagram-famisa-infra infra.yml infra-params.json
+```
+Note: `udagram-famisa-infra` could be substituted with any name of your choice.
+* After a `CREATE_COMPLETE` status update on your [AWS CloudFormation console](https://console.aws.amazon.com/cloudformation), you then need to create the servers using the command:
 
-Since you will be downloading the application archive from an S3 Bucket, you'll need to create an IAM Role that allows your instances to use the S3 Service.
+```
+./create.sh udagram-famisa-server server.yml server-params.json
+```
+Note: `udagram-famisa-server` could be substituted with any name of your choice.
 
-Udagram communicates on the default `HTTP Port: 80`, so your servers will need this inbound port open since you will use it with the **Load Balancer** and the **Load Balancer Health Check**. As for outbound, the servers will need unrestricted internet access to be able to download and update its software.
+* After another `CREATE_COMPLETE` on the server stack, click on the `Outputs` tab of the server stack, and there you will find DNS name to test this app as value to the `key`: `LoadBalancerDNSName`
 
-The load balancer should allow all public traffic `(0.0.0.0/0)` on `port 80` inbound, which is the default `HTTP port`. Outbound, it will only be using `port 80` to reach the internal servers.
+# Important files:
 
-The application needs to be deployed into private subnets with a **Load Balancer** located in a public subnet.
+* [create.sh](create.sh), [update.sh](update.sh) & [delete.sh](delete.sh)
+* [infra.yml](infra.yml) - AWS CloudFormation script for setting up network infrastructure - subnets, internet gateway, VPC, private subnets, etc. Corresponding parameters file is [`infra-params.json`](infra-params.json)
+* [server.yml](server.yml) - AWS CloudFormation script for setting up server infrastructure and IAM roles. Corresponding parameters file is [`server-params.json`](server-params.json)
 
-One of the output exports of the CloudFormation script should be the public URL of the LoadBalancer.
-
-Bonus points if you add `http://` in front of the load balancer DNS Name in the output, for convenience.
-
-## Starter Code
-You will find starter code for the project in the project-starter.yaml file.
+Remember to call `./delete.sh <stack-name>` to delete resources to avoid incurring charges
