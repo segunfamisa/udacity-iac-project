@@ -6,5 +6,9 @@
     {
         "ParameterKey": "AmiId",
         "ParameterValue": "ami-003634241a8fcdec0"
+    },
+    {
+        "ParameterKey": "UdagramSourceArn",
+        "ParameterValue": "arn:aws:s3:::udacity-demo-1"
     }
 ]

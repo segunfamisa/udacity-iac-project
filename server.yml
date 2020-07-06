@@ -9,8 +9,51 @@ Parameters:
   AmiId:
     Description: AMI ID for the server instance
     Type: String
+
+  UdagramSourceArn:
+    Description: S3 ARN for the source code of Udagram
+    Type: String
     
 Resources:
+
+  UdacityS3ReadOnlyEC2:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      RoleName: !Sub ${EnvironmentName}-S3Role
+
+  ProfileWithRolesForOurApp:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Roles:
+        - !Ref UdacityS3ReadOnlyEC2
+
+  RolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AmazonS3ReadOnlyAccess
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Action:
+              - s3:Get*
+              - s3:List*
+            Resource:
+              - !Ref UdagramSourceArn
+              - !Sub "${UdagramSourceArn}/*"
+      Roles:
+        - Ref: UdacityS3ReadOnlyEC2
   
   LoadBalancerSecGroup:
     Type: AWS::EC2::SecurityGroup
@@ -50,12 +93,14 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           apt-get update -y
+          apt-get install unzip awscli -y
           apt-get install apache2 -y
           systemctl start apache2.service
           cd /var/www/html
-          # TODO: Update with reading data from S3
-          echo "Udacity Demo Web Server Up and Running!" > index.html
+          aws s3 cp s3://udacity-demo-1/udacity.zip .
+          unzip -o udacity.zip
       ImageId: !Ref AmiId
+      IamInstanceProfile: !Ref ProfileWithRolesForOurApp
       SecurityGroups:
         - Ref: WebServerSecGroup
       InstanceType: t3.medium
