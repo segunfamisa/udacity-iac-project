@@ -2,6 +2,8 @@
 
 This is the submission for the [_Deploy a high-availability web app using CloudFormation_ project.](instructions.md)
 
+You can view the already-deployed solution here: http://udagr-webap-17a8ii4d1hy51-1800257005.us-west-2.elb.amazonaws.com/ (link will be taken down after project is reviewed)
+
 # Architecture
 
 The architecture diagram for this problem is as shown below
